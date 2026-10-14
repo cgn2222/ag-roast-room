@@ -4,6 +4,9 @@ const URL = "https://api.anthropic.com/v1/messages";
 const RETRY = new Set([429, 500, 502, 503, 529]);
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
+/** Strings become one cached block (the seat prompt is large and identical across rounds). */
+const wrapSystem = (system) => (typeof system === "string" ? [{ type: "text", text: system, cache_control: { type: "ephemeral" } }] : system);
+
 function headers() {
   return {
     "x-api-key": env("ANTHROPIC_API_KEY"),
@@ -28,7 +31,7 @@ export async function stream({ model, system, messages, maxTokens = 2000, onText
     const res = await fetch(URL, {
       method: "POST",
       headers: headers(),
-      body: JSON.stringify({ model, system, messages, max_tokens: maxTokens, stream: true }),
+      body: JSON.stringify({ model, system: wrapSystem(system), messages, max_tokens: maxTokens, stream: true }),
     });
     if (RETRY.has(res.status)) { await sleep(Math.min(30000, 2000 * 2 ** attempt)); continue; }
     if (!res.ok) throw new Error(`Anthropic ${res.status}: ${(await res.text()).slice(0, 300)}`);
@@ -85,13 +88,5 @@ export async function json({ model, system, prompt, schema, maxTokens = 4000 }) 
   throw new Error("Anthropic API kept refusing after retries");
 }
 
-// JSON schema helpers
-export const S = {
-  str: { type: "string" },
-  num: { type: "number" },
-  int: { type: "integer" },
-  bool: { type: "boolean" },
-  arr: (items) => ({ type: "array", items }),
-  obj: (props) => ({ type: "object", properties: props, required: Object.keys(props), additionalProperties: false }),
-  enum: (...v) => ({ type: "string", enum: v }),
-};
+// JSON schema helpers (shared by all providers; kept exported here for compatibility)
+export { S } from "./schema.mjs";

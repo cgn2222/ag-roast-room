@@ -1,13 +1,14 @@
 import fs from "node:fs";
 import path from "node:path";
 import { SEATS, byKey, systemFor, parseCard, checkQuotes } from "./seats.mjs";
-import * as ai from "./anthropic.mjs";
-import { S } from "./anthropic.mjs";
-import { SESSIONS_DIR } from "./env.mjs";
+import * as ai from "./llm.mjs";
+import { S, defaultModels } from "./llm.mjs";
+import { SESSIONS_DIR, env } from "./env.mjs";
 
+// Defaults depend on LLM_PROVIDER (see llm.mjs); SEAT_MODEL / CHAIR_MODEL override them.
 export const MODELS = {
-  seat: process.env.SEAT_MODEL || "claude-sonnet-5-5",
-  chair: process.env.CHAIR_MODEL || "claude-opus-5-5",
+  seat: env("SEAT_MODEL") || defaultModels().seat,
+  chair: env("CHAIR_MODEL") || defaultModels().chair,
 };
 
 const CHAIR_SYSTEM = `You are the Chair of a Roast Room council: seven simulated advisors built from the public work of Jeff Bezos (strategy and decisions), Paul Graham (product and startups), Alex Hormozi (offers, pricing, and sales), Gary Vaynerchuk (marketing and attention), Dan Martell (people, hiring, and founder time), Gino Wickman (operations and scaling), and Warren Buffett (money and capital).

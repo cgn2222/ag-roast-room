@@ -217,7 +217,7 @@ export function runningId() {
 }
 
 export function listLive() {
-  return skillFolders().map((n) => { const x = load(n); return { id: x.id, title: x.title || n, prompt: "", mode: x.mode, status: x.status, source: "claude-code" }; });
+  return skillFolders().map((n) => { const x = load(n); return { id: x.id, title: x.title || n, prompt: "", mode: x.mode, status: x.status, source: "agent" }; });
 }
 
 export function startWatching() {

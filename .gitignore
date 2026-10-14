@@ -1,8 +1,13 @@
-.env
+﻿.env
+.env.*
+!.env.example
 node_modules/
 .DS_Store
+Thumbs.db
+*.log
+npm-debug.log*
 
-# your councils stay on your machine; the examples ship with the repo
+# Sessions stay local; only the shipped reference examples are tracked
 sessions/*
 !sessions/.gitkeep
-!sessions/*example*/
+!sessions/*example*

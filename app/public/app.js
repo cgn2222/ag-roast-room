@@ -19,8 +19,8 @@ const GUIDE = `
     <div class="guide-sec">
       <h4>How to use the Roast Room</h4>
       <ol>
-        <li><span>Open Claude Code in this folder.</span></li>
-        <li><span>Type <code>/roast-room</code> and your decision.</span></li>
+        <li><span>Open your agent (Antigravity Agent Manager or Claude Code) in this folder.</span></li>
+        <li><span>Ask it to run the <code>roast-room</code> skill with your decision (Claude Code also accepts <code>/roast-room</code>).</span></li>
         <li><span>Answer the Chair's questions. Then watch the council argue it out here.</span></li>
         <li><span>When the verdict lands, download it as a PDF.</span></li>
       </ol>
@@ -40,7 +40,7 @@ const GUIDE = `
     <div class="guide-sec">
       <h4>Example</h4>
       <div class="example">
-        <p><code>/roast-room</code> ${EXAMPLE.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</p>
+        <p><code>Run the roast-room skill on this decision:</code> ${EXAMPLE.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</p>
         <button class="ghost" type="button" data-copy-example>Copy this example</button>
       </div>
     </div>
@@ -48,7 +48,7 @@ const GUIDE = `
       <h4>Good to know</h4>
       <ul>
         <li><span><b>Full council:</b> 7 advisors, 3 rounds. For big calls that are hard to undo.</span></li>
-        <li><span><b>Quick:</b> add <code>--quick</code> for 4 advisors and 2 rounds. Uses far less of your plan.</span></li>
+        <li><span><b>Quick:</b> say "quick" (Claude Code: <code>--quick</code>) for 4 advisors and 2 rounds. Uses far less of your plan.</span></li>
         <li><span><b>Every council is saved.</b> Open Past sessions to replay one or download its PDF.</span></li>
       </ul>
     </div>
@@ -69,7 +69,7 @@ async function boot() {
   state.seats = r.seats;
   state.byKey = Object.fromEntries(r.seats.map((s) => [s.key, s]));
   state.runner = r.runner;
-  if (r.runner === "api" && !r.hasKey) toast("No ANTHROPIC_API_KEY found in .env. Add it and restart the server.");
+  if (r.runner === "api" && !r.hasKey) toast(`No API key found in .env for the "${r.provider || "anthropic"}" provider. Add it and restart the server.`);
   renderSeats();
   renderSamples();
   bindUI();
@@ -201,7 +201,7 @@ function bindUI() {
   $("#guideBtn").addEventListener("click", openGuide);
   document.addEventListener("click", async (e) => {
     if (e.target.closest("[data-copy-example]")) {
-      try { await navigator.clipboard.writeText("/roast-room " + EXAMPLE); toast("Copied. Paste it into Claude Code."); }
+      try { await navigator.clipboard.writeText("Run the roast-room skill on this decision: " + EXAMPLE); toast("Copied. Paste it into your agent."); }
       catch { toast("Copy didn't work here. Select the text and copy it."); }
     }
     if (e.target.closest("[data-pdf]")) savePdf(e.target.closest("[data-pdf]"));
@@ -719,10 +719,10 @@ async function replay(id) {
   }
 }
 
-// ------------------------------------------------------------- waiting on Claude Code
+// ------------------------------------------------------------- waiting on the agent
 // A live council goes quiet for minutes while the seats write in parallel. Instead of a
 // frozen table, say what is happening, how long it has been, and what each seat is weighing.
-const SAME_TIME = "The advisors all write at the same time in Claude Code. Their lines play here as soon as the round is in.";
+const SAME_TIME = "The advisors all write at the same time in your agent. Their lines play here as soon as the round is in.";
 function waitCopy(phase) {
   const n = state.setup?.mode === "quick" ? 2 : 3;
   return {

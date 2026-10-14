@@ -1,10 +1,11 @@
-// Smoke test: one Chair setup call and one seat card, no full council.
+// Smoke test: one seat card from the configured provider (LLM_PROVIDER). This is a real,
+// billed call unless LLM_PROVIDER=mock. Run it only when you mean to.
 import { SEATS, systemFor, parseCard, checkQuotes } from "../lib/seats.mjs";
-import * as ai from "../lib/anthropic.mjs";
+import * as ai from "../lib/llm.mjs";
 import { MODELS } from "../lib/council.mjs";
 
 const sys = systemFor("hormozi");
-console.log("hormozi system chars:", sys[0].text.length);
+console.log("provider:", ai.providerName(), "| hormozi system chars:", sys.length);
 
 const t0 = Date.now();
 const card = await ai.stream({

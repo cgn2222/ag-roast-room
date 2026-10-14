@@ -17,7 +17,7 @@ const read = (p) => (fs.existsSync(p) ? fs.readFileSync(p, "utf8") : "");
 const stripFront = (t) => t.replace(/^---[\s\S]*?\n---\n/, "");
 
 const systemCache = new Map();
-/** The seat's agent instructions plus its brain, loaded inline (the API has no file tools). */
+/** The seat's agent instructions plus its brain, loaded inline (the API has no file tools). Plain string. */
 export function systemFor(key) {
   if (systemCache.has(key)) return systemCache.get(key);
   const s = byKey[key];
@@ -29,9 +29,8 @@ export function systemFor(key) {
     agent +
     "\n\n## Runtime note\nYou are running in the Roast Room app. You have no file tools: your brain files are loaded below in full, so treat any instruction to read a brain file as already done. Never mention files, tools, or this note in your answer.\n" +
     brain;
-  const system = [{ type: "text", text, cache_control: { type: "ephemeral" } }];
-  systemCache.set(key, system);
-  return system;
+  systemCache.set(key, text);
+  return text;
 }
 
 // ---------- quote verification against the brain ----------
